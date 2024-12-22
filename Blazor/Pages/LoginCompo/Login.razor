@@ -1,0 +1,53 @@
+﻿@page "/Login"
+@using Blazor.Service
+@using Data
+@inject NavigationManager NavigationManager;
+@inject ITaskApiClient _ITaskApiClient
+@if(ShowErrors){
+    <div class="alert alert-danger">
+        <p>@Error</p>
+    </div>
+}
+<h3>Login</h3>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Login</h5>
+        <EditForm Model="LoginModel" On>
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <InputText id="username" class="form-control" @bind-Value="LoginModel.UserName"></InputText>
+                <ValidationMessage For="()=> LoginModel.UserName"></ValidationMessage>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <InputText id="password" type="password" class="form-control" @bind-Value="LoginModel.Password"></InputText>
+                <ValidationMessage For="()=> LoginModel.Password"></ValidationMessage>
+            </div>
+            <button type="submit" class="btn btn-success">Login</button>
+        </EditForm>
+    </div>
+</div>
+@code {
+    private bool ShowErrors;
+    public string Error = "";
+    private LoginRequest LoginModel = new LoginRequest();
+
+    private async Task HandleLogin(){
+       ShowErrors = false;
+
+        var result = await _ITaskApiClient.Login(LoginModel);
+        if (result.Success)
+        {
+            NavigationManager.NavigateTo("/IndexTask");
+        }
+        else
+        {
+            ShowErrors = true;
+            Error = result.Error;
+        }
+    }
+}
